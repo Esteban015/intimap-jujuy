@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Mapa energético — IntiMap Jujuy</title>
+  <meta name="theme-color" content="#112B29">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/outfit-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css">
+  <link rel="stylesheet" href="/assets/brand.css">
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="im-logo im-logo--inverse topbar__logo" href="/" aria-label="IntiMap Jujuy, inicio">
+      <img src="/assets/logo-mark.svg" alt="" width="32" height="32">
+      <span><span class="im-logo__word">Inti<b>Map</b></span><span class="im-logo__place">JUJUY</span></span>
+    </a>
+    <a class="home-link" href="/">← Inicio</a>
+    <h1 class="topbar__title">Mapa energético</h1>
+    <p id="banner" class="banner" role="status">Cargando datos…</p>
+  </header>
+
+  <div class="layout">
+    <aside class="panel" aria-label="Capas y prioridades">
+      <section>
+        <h2>Capa</h2>
+        <fieldset class="layers">
+          <legend class="sr-only">Capa visible</legend>
+          <label><input type="radio" name="layer" value="score" checked> Puntaje combinado</label>
+          <label><input type="radio" name="layer" value="s_solar"> Potencial solar relativo</label>
+          <label><input type="radio" name="layer" value="s_wind"> Recurso eólico relativo</label>
+        </fieldset>
+      </section>
+
+      <section>
+        <h2>Prioridades</h2>
+        <label class="slider">Solar <output id="w-solar-out">67%</output>
+          <input id="w-solar" type="range" min="0" max="100" step="5" value="60">
+        </label>
+        <label class="slider">Eólico <output id="w-wind-out">33%</output>
+          <input id="w-wind" type="range" min="0" max="100" step="5" value="30">
+        </label>
+        <p class="hint">Los pesos se renormalizan para sumar 100%. Red eléctrica y caminos: sin datos reales, deshabilitados.</p>
+        <p id="weights-warning" class="warning" hidden>Ambos pesos están en 0: el puntaje combinado no se calcula. Subí al menos un deslizador.</p>
+      </section>
+
+      <section>
+        <h2>Ranking (top 5)</h2>
+        <ol id="ranking" class="ranking"><li class="muted">—</li></ol>
+      </section>
+
+      <section class="notes">
+        <h2>Sobre los datos</h2>
+        <p id="sources" class="muted"></p>
+        <p class="muted">Celdas de 0,25° (~28 km). NASA POWER tiene resolución nativa de 0,5°–1°: celdas vecinas pueden compartir el mismo valor.</p>
+        <label class="muted"><input id="basemap" type="checkbox"> Mapa base OpenStreetMap (requiere internet)</label>
+      </section>
+    </aside>
+
+    <main class="map-wrap">
+      <div id="map" role="application" aria-label="Mapa de Jujuy"></div>
+      <div id="map-status" class="map-status">Cargando mapa…</div>
+      <div id="legend" class="legend" aria-label="Leyenda"></div>
+    </main>
+
+    <aside class="panel card" aria-label="Ficha, simulador y asistente">
+      <div id="card" aria-live="polite">
+        <h2>Ficha de la celda</h2>
+        <p class="muted">Tocá una celda del mapa para ver sus indicadores.</p>
+      </div>
+
+      <section id="sim" class="box" hidden>
+        <h2>Simulador solar preliminar</h2>
+        <p class="tag-hyp">Escenario hipotético editable · no son cotizaciones ni tarifas oficiales</p>
+        <form id="sim-form" class="simform" novalidate>
+          <label>Potencia instalada <span class="u">kWp</span><input name="system_kwp" type="number" min="0" step="0.5" required></label>
+          <label>Costo de instalación <span class="u">USD/kWp</span><input name="cost_per_kwp_usd" type="number" min="0" step="10" placeholder="sin dato"></label>
+          <label>Valor de la energía aprovechada <span class="u">USD/kWh</span><input name="energy_value_usd_kwh" type="number" min="0" step="0.01" placeholder="sin dato"></label>
+          <label>Autoconsumo <span class="u">%</span><input name="self_consumption_pct" type="number" min="0" max="100" step="5" required></label>
+          <label>Mantenimiento anual <span class="u">USD/año</span><input name="om_usd_year" type="number" min="0" step="10" placeholder="no declarado"></label>
+          <label>Tarifa de inyección de excedentes <span class="u">USD/kWh</span><input name="export_value_usd_kwh" type="number" min="0" step="0.01" placeholder="sin valor"></label>
+        </form>
+        <p id="sim-error" class="warning" hidden></p>
+        <div id="sim-out" aria-live="polite"></div>
+      </section>
+
+      <section id="assistant" class="box">
+        <h2>Asistente</h2>
+        <div class="suggest" id="suggest">
+          <button type="button">¿Dónde conviene instalar solar para una comunidad de 50 familias?</button>
+          <button type="button">¿Por qué esta zona?</button>
+          <button type="button">¿En cuánto tiempo recupero la inversión?</button>
+          <button type="button">¿Cómo es el recurso eólico acá?</button>
+        </div>
+        <form id="ask-form" class="askform">
+          <label class="sr-only" for="question">Pregunta</label>
+          <textarea id="question" rows="2" maxlength="500" placeholder="Escribí tu pregunta…"></textarea>
+          <button type="submit" id="ask-btn">Preguntar</button>
+        </form>
+        <div id="answer" aria-live="polite"></div>
+      </section>
+    </aside>
+  </div>
+
+  <footer class="disclaimer">
+    Estimaciones preliminares para comparar zonas. Los índices 0–100 son relativos dentro de Jujuy: no certifican viabilidad,
+    no son producción eléctrica efectiva, ni rentabilidad, ni aptitud de un terreno. Requieren estudio de sitio.
+  </footer>
+
+  <script src="/vendor/leaflet/leaflet.js"></script>
+  <script src="/scoring.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>

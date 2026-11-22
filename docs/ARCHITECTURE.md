@@ -47,7 +47,7 @@ flowchart LR
   end
 
   subgraph WEB["Navegador"]
-    UI["frontend/index.html + app.js<br/>Leaflet local"]
+    UI["frontend/mapa/index.html + app.js<br/>Leaflet local · landing en /"]
     SJS["scoring.js<br/>réplica de scoring.py"]
     UI --- SJS
   end
@@ -81,10 +81,12 @@ Los scripts requieren `scripts/requirements.txt` (Shapely). La app **no** los ne
 ### Frontend (`frontend/`)
 | Archivo | Responsabilidad |
 |---|---|
-| `index.html` / `styles.css` | Tres paneles: capas y prioridades, mapa, y ficha con simulador y asistente. En pantallas angostas pasa a una sola columna. |
+| `index.html` + `landing.css` + `assets/` | Landing comercial en `/`: HTML y CSS con tokens de `assets/brand.css`, sin Leaflet ni datos. |
+| `mapa/index.html` / `styles.css` | Herramienta en `/mapa/`. Tres paneles: capas y prioridades, mapa, y ficha con simulador y asistente. En pantallas angostas pasa a una sola columna. |
 | `app.js` | Carga datos, dibuja celdas y contorno, maneja capas y sliders, y muestra ficha, simulador y asistente. Maneja estados de carga y error. |
 | `scoring.js` | Réplica exacta de `scoring.py`, para que los sliders recalculen sin requests. Usa el mismo redondeo half-up, el mismo tratamiento de nulos y el mismo desempate. |
 | `vendor/leaflet/` | Leaflet 1.9.4 local, con licencia BSD-2. |
+| `assets/` | Sistema visual compartido (`brand.css`, con tokens `--im-*`), logo y favicon SVG, fuente Outfit autoalojada (OFL), sprite de íconos Lucide (ISC), capturas de la landing y `landing.js` (menú móvil). Todo local, sin CDN. |
 
 ### Almacenamiento local
 Todo son archivos versionados en `data/`; no hay base de datos.
@@ -120,7 +122,7 @@ sequenceDiagram
   participant A as FastAPI
   participant L as LLM (opcional)
 
-  U->>B: abre http://localhost:8000
+  U->>B: abre http://localhost:8000/mapa/
   B->>A: GET /api/cells, GET /api/boundary, GET /api/scenario
   A-->>B: GeoJSON + escenario hipotético
   Note over B: dibuja 104 celdas y calcula puntajes con scoring.js
@@ -157,4 +159,6 @@ El registro completo está en [`DECISIONS.md`](DECISIONS.md).
 | `GET /api/towns` y `towns.json` | No implementado | Pendiente; ver `ROADMAP.md`. |
 | Pesos de red y acceso | Deshabilitados | No hay datos reales (DECISIONS 26). |
 | Viento a 50 o 100 m | 50 m (WS50M) | Sin extrapolar (DECISIONS 21). |
+| Escala de color rojo-amarillo-verde | Escalas secuenciales de un tono por capa: verde (combinado), dorado (solar), azul pizarra (eólico) | La escala divergente fallaba la validación de paletas; los cortes de clase no cambiaron (DECISIONS 43 y 53). |
+| Una sola página | Landing en `/` y herramienta en `/mapa/` | Fase 6 (DECISIONS 44 y 48). |
 | Economía con tarifa × kWh | Agrega autoconsumo, mantenimiento, excedentes y «No calculable» | Pedido de la Fase 3 (DECISIONS 31-33). |

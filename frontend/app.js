@@ -4,15 +4,24 @@
   "use strict";
   const S = window.IntiScoring;
 
-  // Escala rojo-amarillo-verde (ColorBrewer RdYlGn, 5 clases) para índices 0-100.
+  // Clases del índice 0-100 (mismos cortes que en la Fase 2; solo cambia el color).
   const BINS = [
-    { max: 20, color: "#d73027", label: "0–20 · muy bajo" },
-    { max: 40, color: "#fc8d59", label: "20–40 · bajo" },
-    { max: 60, color: "#fee08b", label: "40–60 · medio" },
-    { max: 80, color: "#91cf60", label: "60–80 · alto" },
-    { max: 100.0001, color: "#1a9850", label: "80–100 · muy alto" },
+    { max: 20, label: "0–20 · muy bajo" },
+    { max: 40, label: "20–40 · bajo" },
+    { max: 60, label: "40–60 · medio" },
+    { max: 80, label: "60–80 · alto" },
+    { max: 100.0001, label: "80–100 · muy alto" },
   ];
-  const NO_DATA = "#b8bec6";
+  // Rampas secuenciales de un tono por capa (docs/BRAND_GUIDELINES.md §4.4; validadas: monótonas, extremo claro ≥2:1).
+  const RAMPS = {
+    s_solar: ["#C9A04F", "#B0842F", "#8E671C", "#6B4C11", "#46310A"],
+    s_wind: ["#86A9BE", "#6189A2", "#436C86", "#2D5068", "#1A3346"],
+    score: ["#7AB09A", "#579A82", "#3A7F6A", "#235F51", "#123A33"],
+  };
+  // Sin dato / sin pesos: trama diagonal neutra (patrón SVG inyectado en el mapa; ver ensureNoDataPattern).
+  const NO_DATA = "url(#im-nodata)";
+  const SELECT_HALO = "#FFFFFF";
+  const SELECT_CORE = "#112B29";
   const LAYER_NAMES = {
     score: "Puntaje combinado (0–100)",
     s_solar: "Potencial solar relativo (0–100)",
@@ -26,7 +35,7 @@
 
   function colorFor(v) {
     if (v == null) return NO_DATA;
-    return BINS.find((b) => v < b.max).color;
+    return RAMPS[state.layer][BINS.findIndex((b) => v < b.max)];
   }
   const fmt = (v, d = 1, unit = "") =>
     v == null ? "—" : `${Number(v).toLocaleString("es-AR", { minimumFractionDigits: d, maximumFractionDigits: d })}${unit ? " " + unit : ""}`;
@@ -55,8 +64,8 @@
   function styleFor(id) {
     const selected = id === state.selectedId;
     return {
-      fillColor: colorFor(valueOf(id)), fillOpacity: 0.78,
-      color: selected ? "#111" : "#ffffff", weight: selected ? 3 : 0.6, opacity: 1,
+      fillColor: colorFor(valueOf(id)), fillOpacity: 0.95,
+      color: selected ? SELECT_HALO : "#ffffff", weight: selected ? 6 : 0.6, opacity: 1,
     };
   }
 
@@ -64,15 +73,34 @@
     state.layersById.forEach((lyr, id) => lyr.setStyle(styleFor(id)));
     const sel = state.layersById.get(state.selectedId);
     if (sel) sel.bringToFront();
+    if (state.selOutline) state.selOutline.bringToFront();
+    ensureNoDataPattern();
+  }
+
+  // Selección visible sobre cualquier color: halo blanco (estilo de la celda) + trazo verde profundo encima.
+  function drawSelection(lyr) {
+    if (state.selOutline) map.removeLayer(state.selOutline);
+    state.selOutline = L.geoJSON(lyr.feature, { style: { color: SELECT_CORE, weight: 2.5, fill: false }, interactive: false }).addTo(map);
+  }
+
+  function ensureNoDataPattern() {
+    const svg = map.getPanes().overlayPane.querySelector("svg");
+    if (!svg || svg.querySelector("#im-nodata")) return;
+    const ns = "http://www.w3.org/2000/svg";
+    const defs = document.createElementNS(ns, "defs");
+    defs.innerHTML = '<pattern id="im-nodata" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">' +
+      '<rect width="8" height="8" fill="#ECE7DC"/><rect width="4" height="8" fill="#B9B3A6"/></pattern>';
+    svg.insertBefore(defs, svg.firstChild);
   }
 
   function renderLegend() {
-    const bar = BINS.map((b) => `<span class="seg" style="background:${b.color}" title="${b.label}"></span>`).join("");
+    const ramp = RAMPS[state.layer];
+    const bar = BINS.map((b, i) => `<span class="seg" style="background:${ramp[i]}" title="${b.label}"></span>`).join("");
     $("legend").innerHTML = `<div class="title">${LAYER_NAMES[state.layer]}</div>
       <div class="bar">${bar}</div>
       <div class="ticks"><span>0</span><span>20</span><span>40</span><span>60</span><span>80</span><span>100</span></div>
       <div class="ends"><span>bajo</span><span>alto</span></div>
-      <div class="row"><span class="sw" style="background:${NO_DATA}"></span>sin dato / sin pesos</div>
+      <div class="row"><span class="sw nodata"></span>sin dato / sin pesos</div>
       <div class="muted">Relativo entre celdas de Jujuy. No es viabilidad ni producción.</div>`;
   }
 
@@ -172,7 +200,9 @@
     const lyr = state.layersById.get(id);
     lyr.setStyle(styleFor(id));
     lyr.bringToFront();
-    if (pan) map.panTo(lyr.getBounds().getCenter());
+    drawSelection(lyr);
+    // Solo mueve el mapa si la celda no está a la vista (antes panTo la centraba siempre y sacaba parte de la provincia).
+    if (pan) map.panInside(lyr.getBounds().getCenter(), { padding: [60, 60] });
     renderCard(id);
     $("sim").hidden = false;
     scheduleSimulation(0);
@@ -359,7 +389,7 @@
 
       let fitTo = grid.getBounds();
       if (boundary) {
-        const outline = L.geoJSON(boundary, { style: { color: "#222", weight: 2, fill: false }, interactive: false }).addTo(map);
+        const outline = L.geoJSON(boundary, { style: { color: "#112B29", weight: 2, fill: false }, interactive: false }).addTo(map);
         fitTo = outline.getBounds();
         map.attributionControl.addAttribution("Contorno: IGN Argentina");
       } else {
@@ -367,7 +397,10 @@
       }
       map.attributionControl.addAttribution(state.meta.synthetic ? "Datos sintéticos" : "NASA POWER · Open-Meteo");
       // Reserva espacio abajo para la leyenda, así no tapa celdas al abrir.
-      map.fitBounds(fitTo, { paddingTopLeft: [10, 10], paddingBottomRight: [10, 110] });
+      // En móvil la leyenda va debajo del mapa (CSS), así que no hace falta reservarle espacio.
+      const legendOverlays = getComputedStyle($("legend")).position === "absolute";
+      map.fitBounds(fitTo, { paddingTopLeft: [10, 10], paddingBottomRight: [10, legendOverlays ? 110 : 10] });
+      ensureNoDataPattern(); // Leaflet crea el SVG recién cuando el mapa tiene vista (tras fitBounds)
 
       setBanner(state.meta);
       renderLegend();

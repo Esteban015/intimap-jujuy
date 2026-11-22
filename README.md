@@ -36,8 +36,9 @@ Además, la provincia es muy heterogénea: Puna sobre los 3.500 m, quebradas y Y
 
 | Funcionalidad | Detalle |
 |---|---|
-| **Mapa de Jujuy** | Contorno oficial del IGN y 104 celdas de 0,25° (~28 km) recortadas a la provincia, con tooltips y selección de celda. |
-| **Tres capas** | Puntaje combinado, potencial solar relativo y recurso eólico relativo. Escala de 0 a 100 con leyenda. |
+| **Landing comercial** | En `/`: qué es IntiMap, el problema, cómo funciona, para quién es, qué es y qué no es, metodología y fuentes. El botón «Explorar mapa energético» lleva a la herramienta. |
+| **Mapa de Jujuy** | En `/mapa/`: contorno oficial del IGN y 104 celdas de 0,25° (~28 km) recortadas a la provincia, con tooltips y selección de celda. |
+| **Tres capas** | Puntaje combinado (escala verde), potencial solar relativo (dorada) y recurso eólico relativo (azul pizarra). Las escalas son secuenciales: **cuanto más oscuro el tono, mayor la puntuación relativa**. La leyenda muestra los cortes 0/20/40/60/80/100 y las celdas sin dato llevan una trama diagonal. |
 | **Prioridades** | Sliders solar y eólico, renormalizados a 100%. El ranking (top 5) y los colores se recalculan sin pedir nada al servidor. Con ambos en 0 aparece un aviso explícito. |
 | **Ficha de la zona** | Muestra datos descargados (GHI, temperatura, viento a 50 m, altitud) e indicadores calculados (densidad del aire, kWh/kWp/año, índice eólico, índices relativos), con etiquetas de calidad. Incluye una recomendación preliminar solar, eólica o mixta. |
 | **Simulador solar (USD)** | Parámetros editables: potencia, costo por kWp, valor de la energía, autoconsumo, mantenimiento y tarifa de inyección. Calcula generación, inversión, ahorro bruto y neto, y recuperación simple. |
@@ -46,22 +47,34 @@ Además, la provincia es muy heterogénea: Puna sobre los 3.500 m, quebradas y Y
 
 ## Capturas
 
-**Puntaje combinado (pesos por defecto: solar 67%, eólico 33%)**
+Todas son capturas reales de la versión actual.
 
-![Mapa de puntaje combinado](docs/screenshots/mapa-combinado.png)
+**Landing (`/`)**
 
-**Ficha de la zona y simulador solar**
+![Landing de IntiMap en escritorio](docs/screenshots/landing-desktop.png)
 
-![Ficha técnica y simulador](docs/screenshots/ficha-simulador.png)
+<img src="docs/screenshots/landing-movil.png" alt="Landing de IntiMap en el celular" width="300">
 
-**Asistente (respuesta determinista)**
+**Mapa: puntaje combinado (pesos por defecto: solar 67%, eólico 33%)**
 
-![Asistente explicativo](docs/screenshots/asistente.png)
+![Mapa con la capa de puntaje combinado, escala verde](docs/screenshots/mapa-combinado.png)
+
+| Potencial solar relativo | Recurso eólico relativo |
+|---|---|
+| ![Capa solar, escala dorada](docs/screenshots/mapa-solar.png) | ![Capa eólica, escala azul pizarra](docs/screenshots/mapa-eolico.png) |
+
+**Zona seleccionada y simulador solar**
+
+![Zona seleccionada con el simulador solar](docs/screenshots/ficha-simulador.png)
+
+**Asistente (respuesta determinista, sin IA)**
+
+![Asistente respondiendo sobre una comunidad de 50 familias](docs/screenshots/asistente.png)
 
 ## Stack
 
 - **Backend:** Python 3 + FastAPI + Uvicorn + Pydantic. Sirve la API y el frontend desde un solo proceso.
-- **Frontend:** HTML, CSS y JavaScript sin framework. Usa [Leaflet 1.9.4](https://leafletjs.com) copiado en `frontend/vendor/`, sin CDN.
+- **Frontend:** HTML, CSS y JavaScript sin framework; una landing en `/` y la herramienta en `/mapa/`, con un sistema visual compartido en `frontend/assets/brand.css`. Usa [Leaflet 1.9.4](https://leafletjs.com) copiado en `frontend/vendor/`, sin CDN.
 - **Datos:** archivos GeoJSON y JSON en `data/`, sin base de datos.
 - **Pipeline de datos:** scripts Python con [Shapely](https://shapely.readthedocs.io).
 - **LLM opcional:** SDK oficial `anthropic`. Solo se usa si existe `LLM_API_KEY`.
@@ -92,7 +105,7 @@ pip install -r backend/requirements.txt
 python -m uvicorn backend.app.main:app --port 8000
 ```
 
-Abrí http://localhost:8000. La documentación interactiva de la API está en http://localhost:8000/docs.
+Abrí http://localhost:8000: la landing está en `/` y la herramienta en http://localhost:8000/mapa/. La documentación interactiva de la API está en http://localhost:8000/docs.
 
 El dataset procesado ya viene en el repositorio, así que **no hace falta descargar nada para usar la app**. Para regenerar los datos, ver [`docs/SETUP.md`](docs/SETUP.md).
 
@@ -190,6 +203,8 @@ Resumen; el detalle está en [`docs/ROADMAP.md`](docs/ROADMAP.md).
 | [`docs/DATA_METHODOLOGY.md`](docs/DATA_METHODOLOGY.md) | Fuentes, fórmulas, supuestos y limitaciones |
 | [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) | Guion de la presentación de 2 a 3 minutos |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Lo implementado y lo propuesto |
+| [`docs/BRAND_GUIDELINES.md`](docs/BRAND_GUIDELINES.md) | Identidad de marca, paleta y componentes |
+| [`docs/LANDING_SPEC.md`](docs/LANDING_SPEC.md) | Estructura de la landing y plan visual |
 | [`docs/SETUP.md`](docs/SETUP.md) | Instalación y regeneración de datos |
 | [`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md) | Despliegue en Render (todavía sin URL pública) |
 | [`docs/CONTRACTS.md`](docs/CONTRACTS.md) | Contratos de datos y API |
@@ -200,6 +215,9 @@ Resumen; el detalle está en [`docs/ROADMAP.md`](docs/ROADMAP.md).
 ## Licencias de terceros
 
 - **Leaflet:** BSD-2-Clause (`frontend/vendor/leaflet/LICENSE`).
+- **Tipografía Outfit:** SIL Open Font License 1.1 (`frontend/assets/fonts/OFL.txt`), autoalojada.
+- **Íconos Lucide:** ISC (`frontend/assets/icons/LICENSE-lucide.txt`).
+- **Logo, ilustraciones y capturas:** material propio del proyecto.
 - **Datos:** según cada fuente (ver la tabla de fuentes).
 
 El código propio del proyecto todavía no declara una licencia.

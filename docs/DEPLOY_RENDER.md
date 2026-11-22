@@ -58,7 +58,7 @@ curl -s -X POST $URL/api/simulate -H "Content-Type: application/json" \
   -d '{"cell_id":"c_-23.375_-67.125","system_kwp":5,"cost_per_kwp_usd":900,"energy_value_usd_kwh":0.1,"self_consumption_pct":80}'
 # simple_payback_years: 5.2
 ```
-En el navegador: el mapa muestra 104 celdas, los sliders recolorean, el simulador calcula y el asistente responde «Respuesta determinista (sin IA)».
+En el navegador: `/` muestra la landing y su botón «Explorar mapa energético» abre `/mapa/`, donde el mapa muestra 104 celdas, los sliders recolorean, el simulador calcula y el asistente responde «Respuesta determinista (sin IA)».
 
 ## Limitaciones del plan Free (según la documentación de Render)
 - **Se apaga tras 15 minutos sin tráfico** y tarda **alrededor de 1 minuto** en volver. Para una demo, **abrir la URL unos minutos antes** de presentar.

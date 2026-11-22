@@ -3,106 +3,361 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>IntiMap Jujuy</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='6' fill='%23f2b400'/%3E%3C/svg%3E">
-  <link rel="stylesheet" href="vendor/leaflet/leaflet.css">
-  <link rel="stylesheet" href="styles.css">
+  <title>IntiMap Jujuy — El primer filtro para la energía renovable en Jujuy</title>
+  <meta name="description" content="Mapa de evaluación preliminar del potencial solar y eólico de Jujuy: 104 zonas, datos climatológicos públicos 2001–2025, prioridades ajustables y simulación solar transparente.">
+  <meta name="theme-color" content="#112B29">
+  <meta property="og:title" content="IntiMap Jujuy — El primer filtro para la energía renovable en Jujuy">
+  <meta property="og:description" content="Compará el potencial solar y eólico de las 104 zonas de Jujuy con datos públicos. Evaluación preliminar para orientar estudios posteriores.">
+  <meta property="og:image" content="/assets/img/mapa-combinado.png">
+  <meta property="og:type" content="website">
+  <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+  <link rel="preload" href="/assets/fonts/outfit-latin-700-normal.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="/assets/brand.css">
+  <link rel="stylesheet" href="/landing.css">
 </head>
 <body>
-  <header class="topbar">
-    <h1>IntiMap Jujuy</h1>
-    <p id="banner" class="banner" role="status">Cargando datos…</p>
+  <a class="im-skip" href="#contenido">Saltar al contenido</a>
+
+  <!-- ===== Navegación ===== -->
+  <header class="nav" id="nav">
+    <div class="im-container nav__inner">
+      <a class="im-logo im-logo--inverse nav__logo" href="/" aria-label="IntiMap Jujuy, inicio">
+        <img src="/assets/logo-mark.svg" alt="" width="36" height="36">
+        <span><span class="im-logo__word">Inti<b>Map</b></span><span class="im-logo__place">JUJUY</span></span>
+      </a>
+      <button class="nav__toggle" type="button" aria-expanded="false" aria-controls="nav-menu">
+        <svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-menu"/></svg>
+        <span class="im-sr-only">Abrir menú</span>
+      </button>
+      <nav class="nav__menu" id="nav-menu" aria-label="Principal">
+        <ul>
+          <li><a href="#como-funciona">Cómo funciona</a></li>
+          <li><a href="#para-quien">Para quién</a></li>
+          <li><a href="#alcance">Alcance</a></li>
+          <li><a href="#metodologia">Metodología</a></li>
+        </ul>
+        <a class="im-btn im-btn--sun nav__cta" href="/mapa/">Explorar mapa energético</a>
+      </nav>
+    </div>
   </header>
 
-  <div class="layout">
-    <aside class="panel" aria-label="Capas y prioridades">
-      <section>
-        <h2>Capa</h2>
-        <fieldset class="layers">
-          <legend class="sr-only">Capa visible</legend>
-          <label><input type="radio" name="layer" value="score" checked> Puntaje combinado</label>
-          <label><input type="radio" name="layer" value="s_solar"> Potencial solar relativo</label>
-          <label><input type="radio" name="layer" value="s_wind"> Recurso eólico relativo</label>
-        </fieldset>
-      </section>
-
-      <section>
-        <h2>Prioridades</h2>
-        <label class="slider">Solar <output id="w-solar-out">67%</output>
-          <input id="w-solar" type="range" min="0" max="100" step="5" value="60">
-        </label>
-        <label class="slider">Eólico <output id="w-wind-out">33%</output>
-          <input id="w-wind" type="range" min="0" max="100" step="5" value="30">
-        </label>
-        <p class="hint">Los pesos se renormalizan para sumar 100%. Red eléctrica y caminos: sin datos reales, deshabilitados.</p>
-        <p id="weights-warning" class="warning" hidden>Ambos pesos están en 0: el puntaje combinado no se calcula. Subí al menos un deslizador.</p>
-      </section>
-
-      <section>
-        <h2>Ranking (top 5)</h2>
-        <ol id="ranking" class="ranking"><li class="muted">—</li></ol>
-      </section>
-
-      <section class="notes">
-        <h2>Sobre los datos</h2>
-        <p id="sources" class="muted"></p>
-        <p class="muted">Celdas de 0,25° (~28 km). NASA POWER tiene resolución nativa de 0,5°–1°: celdas vecinas pueden compartir el mismo valor.</p>
-        <label class="muted"><input id="basemap" type="checkbox"> Mapa base OpenStreetMap (requiere internet)</label>
-      </section>
-    </aside>
-
-    <main class="map-wrap">
-      <div id="map" role="application" aria-label="Mapa de Jujuy"></div>
-      <div id="map-status" class="map-status">Cargando mapa…</div>
-      <div id="legend" class="legend" aria-label="Leyenda"></div>
-    </main>
-
-    <aside class="panel card" aria-label="Ficha, simulador y asistente">
-      <div id="card" aria-live="polite">
-        <h2>Ficha de la celda</h2>
-        <p class="muted">Tocá una celda del mapa para ver sus indicadores.</p>
-      </div>
-
-      <section id="sim" class="box" hidden>
-        <h2>Simulador solar preliminar</h2>
-        <p class="tag-hyp">Escenario hipotético editable · no son cotizaciones ni tarifas oficiales</p>
-        <form id="sim-form" class="simform" novalidate>
-          <label>Potencia instalada <span class="u">kWp</span><input name="system_kwp" type="number" min="0" step="0.5" required></label>
-          <label>Costo de instalación <span class="u">USD/kWp</span><input name="cost_per_kwp_usd" type="number" min="0" step="10" placeholder="sin dato"></label>
-          <label>Valor de la energía aprovechada <span class="u">USD/kWh</span><input name="energy_value_usd_kwh" type="number" min="0" step="0.01" placeholder="sin dato"></label>
-          <label>Autoconsumo <span class="u">%</span><input name="self_consumption_pct" type="number" min="0" max="100" step="5" required></label>
-          <label>Mantenimiento anual <span class="u">USD/año</span><input name="om_usd_year" type="number" min="0" step="10" placeholder="no declarado"></label>
-          <label>Tarifa de inyección de excedentes <span class="u">USD/kWh</span><input name="export_value_usd_kwh" type="number" min="0" step="0.01" placeholder="sin valor"></label>
-        </form>
-        <p id="sim-error" class="warning" hidden></p>
-        <div id="sim-out" aria-live="polite"></div>
-      </section>
-
-      <section id="assistant" class="box">
-        <h2>Asistente</h2>
-        <div class="suggest" id="suggest">
-          <button type="button">¿Dónde conviene instalar solar para una comunidad de 50 familias?</button>
-          <button type="button">¿Por qué esta zona?</button>
-          <button type="button">¿En cuánto tiempo recupero la inversión?</button>
-          <button type="button">¿Cómo es el recurso eólico acá?</button>
+  <main id="contenido">
+    <!-- ===== Hero ===== -->
+    <section class="hero" aria-labelledby="hero-title">
+      <svg class="hero__art" viewBox="0 0 1440 720" preserveAspectRatio="xMidYMax slice" aria-hidden="true" focusable="false">
+        <defs>
+          <pattern id="grid" width="72" height="72" patternUnits="userSpaceOnUse">
+            <path d="M72 0H0V72" fill="none" stroke="#F5F1E8" stroke-opacity=".07" stroke-width="1"/>
+          </pattern>
+          <radialGradient id="glow" cx="78%" cy="58%" r="38%">
+            <stop offset="0" stop-color="#D9A441" stop-opacity=".35"/><stop offset="1" stop-color="#D9A441" stop-opacity="0"/>
+          </radialGradient>
+        </defs>
+        <rect width="1440" height="720" fill="#112B29"/>
+        <rect width="1440" height="720" fill="url(#grid)"/>
+        <rect width="1440" height="720" fill="url(#glow)"/>
+        <circle cx="1150" cy="640" r="96" fill="#D9A441" fill-opacity=".9"/>
+        <path d="M0 668 L170 630 L300 652 L470 606 L610 642 L760 614 L900 646 L1060 602 L1220 630 L1440 594 V720 H0Z" fill="#1A4A3F"/>
+        <path d="M0 690 L210 662 L360 682 L540 650 L700 678 L880 654 L1040 686 L1240 658 L1440 680 V720 H0Z" fill="#5E3B2C"/>
+        <path d="M0 708 L260 690 L470 704 L700 686 L940 706 L1180 692 L1440 704 V720 H0Z" fill="#0B1E1C"/>
+      </svg>
+      <div class="im-container hero__inner">
+        <div class="hero__copy">
+          <p class="eyebrow">Evaluación preliminar de energías renovables · Jujuy</p>
+          <h1 id="hero-title">El primer filtro para la energía renovable en Jujuy.</h1>
+          <p class="hero__lead">Compará el potencial solar y eólico de toda la provincia, ajustá tus prioridades y descubrí qué zonas conviene estudiar primero. Con datos públicos, transparentes y sin vueltas.</p>
+          <div class="hero__actions">
+            <a class="im-btn im-btn--sun im-btn--lg" href="/mapa/" id="cta-hero">
+              Explorar mapa energético
+              <svg class="im-icon im-icon--sm" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-arrow-right"/></svg>
+            </a>
+            <a class="im-btn im-btn--ghost-inverse im-btn--lg" href="#como-funciona">Cómo funciona</a>
+          </div>
+          <ul class="facts" aria-label="Datos del proyecto">
+            <li><strong>104</strong><span>zonas de Jujuy</span></li>
+            <li><strong>2001–2025</strong><span>climatología NASA POWER</span></li>
+            <li><strong>3</strong><span>fuentes públicas</span></li>
+            <li><strong>Offline</strong><span>funciona sin internet</span></li>
+          </ul>
         </div>
-        <form id="ask-form" class="askform">
-          <label class="sr-only" for="question">Pregunta</label>
-          <textarea id="question" rows="2" maxlength="500" placeholder="Escribí tu pregunta…"></textarea>
-          <button type="submit" id="ask-btn">Preguntar</button>
-        </form>
-        <div id="answer" aria-live="polite"></div>
-      </section>
-    </aside>
-  </div>
+        <figure class="hero__shot">
+          <div class="window">
+            <div class="window__bar" aria-hidden="true"><span></span><span></span><span></span></div>
+            <img src="/assets/img/mapa-combinado.png" width="1440" height="900"
+                 alt="Captura de la herramienta IntiMap: mapa de Jujuy dividido en celdas coloreadas según el puntaje combinado, con los controles de prioridades a la izquierda.">
+          </div>
+          <figcaption>Captura real de la herramienta · Puntaje combinado</figcaption>
+        </figure>
+      </div>
+    </section>
 
-  <footer class="disclaimer">
-    Estimaciones preliminares para comparar zonas. Los índices 0–100 son relativos dentro de Jujuy: no certifican viabilidad,
-    no son producción eléctrica efectiva, ni rentabilidad, ni aptitud de un terreno. Requieren estudio de sitio.
+    <!-- ===== Problema ===== -->
+    <section class="section" id="problema" aria-labelledby="problema-title">
+      <div class="im-container">
+        <p class="kicker">El problema</p>
+        <h2 id="problema-title">Decidir dónde estudiar un proyecto renovable no debería empezar a ciegas.</h2>
+        <p class="lead">La radiación, el viento, la altura y la temperatura cambian mucho entre la Puna, las quebradas y las Yungas. Cruzar esos datos lleva tiempo, conocimientos técnicos y, muchas veces, consultorías costosas solo para saber por dónde empezar.</p>
+        <div class="grid grid--3">
+          <article class="im-card">
+            <span class="im-card__icon"><svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-database"/></svg></span>
+            <h3>Datos dispersos</h3>
+            <p>Las fuentes existen, pero están en distintos formatos, escalas y unidades.</p>
+          </article>
+          <article class="im-card">
+            <span class="im-card__icon"><svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-layers"/></svg></span>
+            <h3>Territorio diverso</h3>
+            <p>En la provincia hay zonas desde unos 330 hasta más de 5.000 metros de altura. Arriba, el aire es menos denso y el mismo viento rinde menos.</p>
+          </article>
+          <article class="im-card">
+            <span class="im-card__icon"><svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-sliders-horizontal"/></svg></span>
+            <h3>Decisiones tempranas</h3>
+            <p>Antes de un estudio de sitio hace falta un primer filtro claro para priorizar dónde mirar.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Solución ===== -->
+    <section class="section section--sand" id="solucion" aria-labelledby="solucion-title">
+      <div class="im-container split">
+        <div>
+          <p class="kicker">La solución</p>
+          <h2 id="solucion-title">Un mapa que compara, explica y no exagera.</h2>
+          <p class="lead">IntiMap divide Jujuy en 104 zonas de unos 28 km y calcula para cada una indicadores solares y eólicos preliminares. Vos elegís qué priorizar; el mapa se reordena al instante.</p>
+          <ul class="checks">
+            <li><svg class="im-icon im-icon--sm" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-check"/></svg>Cada dato indica si fue descargado de una fuente o calculado.</li>
+            <li><svg class="im-icon im-icon--sm" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-check"/></svg>Si falta información, dice «No calculable» en lugar de inventar.</li>
+            <li><svg class="im-icon im-icon--sm" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-check"/></svg>Explica los resultados en lenguaje simple, con sus advertencias.</li>
+          </ul>
+        </div>
+        <figure class="shot">
+          <img src="/assets/img/ficha-simulador.png" width="1440" height="900" loading="lazy"
+               alt="Captura de la herramienta con una zona seleccionada y el simulador solar: parámetros editables, generación anual, inversión, ahorro y recuperación simple de 5,2 años en un escenario hipotético.">
+          <figcaption>Zona seleccionada y simulador solar con un escenario hipotético editable</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===== Funcionalidades ===== -->
+    <section class="section" id="funcionalidades" aria-labelledby="func-title">
+      <div class="im-container">
+        <p class="kicker">Qué podés hacer</p>
+        <h2 id="func-title">Seis herramientas, un mismo mapa.</h2>
+        <div class="grid grid--3">
+          <article class="im-card feature">
+            <span class="im-card__icon"><svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-map"/></svg></span>
+            <h3>Mapa de toda la provincia</h3>
+            <p>104 zonas recortadas al contorno oficial del IGN, con capas de potencial solar, recurso eólico y puntaje combinado.</p>
+          </article>
+          <article class="im-card feature">
+            <span class="im-card__icon"><svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-sliders-horizontal"/></svg></span>
+            <h3>Tus prioridades, al instante</h3>
+            <p>Ajustá el peso de lo solar y lo eólico: el ranking y los colores se recalculan en tu navegador.</p>
+          </article>
+          <article class="im-card feature">
+            <span class="im-card__icon"><svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-sun"/></svg></span>
+            <h3>Ficha de cada zona</h3>
+            <p>Irradiación, temperatura, viento a 50 m, altitud y densidad del aire, con la indicación de qué fue descargado y qué fue calculado.</p>
+          </article>
+          <article class="im-card feature">
+            <span class="im-card__icon"><svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-calculator"/></svg></span>
+            <h3>Simulador solar transparente</h3>
+            <p>Potencia, costo, valor de la energía y autoconsumo editables. Si falta un dato, dice «No calculable».</p>
+          </article>
+          <article class="im-card feature">
+            <span class="im-card__icon"><svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-message-circle"/></svg></span>
+            <h3>Asistente que explica</h3>
+            <p>Respuestas con los números del mapa, en lenguaje simple y siempre con advertencias. Funciona sin inteligencia artificial.</p>
+          </article>
+          <article class="im-card feature">
+            <span class="im-card__icon"><svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-wifi-off"/></svg></span>
+            <h3>Funciona sin conexión</h3>
+            <p>Los datos ya están preparados: la herramienta no depende de servicios externos para funcionar.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Cómo funciona ===== -->
+    <section class="section section--dark" id="como-funciona" aria-labelledby="como-title">
+      <div class="im-container">
+        <p class="kicker kicker--sun">Cómo funciona</p>
+        <h2 id="como-title">De la pregunta a la zona candidata, en tres pasos.</h2>
+        <ol class="steps">
+          <li class="step">
+            <span class="step__num" aria-hidden="true">1</span>
+            <h3>Elegí qué priorizar</h3>
+            <p>Mové los controles solar y eólico; el mapa muestra qué zonas se destacan según tu criterio.</p>
+          </li>
+          <li class="step">
+            <span class="step__num" aria-hidden="true">2</span>
+            <h3>Explorá una zona</h3>
+            <p>Tocá una celda para ver sus datos, su recomendación preliminar y una estimación de generación solar.</p>
+          </li>
+          <li class="step">
+            <span class="step__num" aria-hidden="true">3</span>
+            <h3>Simulá y preguntá</h3>
+            <p>Probá un escenario económico editable y consultá al asistente por qué esa zona se destaca.</p>
+          </li>
+        </ol>
+        <figure class="shot shot--wide">
+          <img src="/assets/img/asistente.png" width="1440" height="900" loading="lazy"
+               alt="Captura del asistente respondiendo sin IA a la pregunta sobre una comunidad de 50 familias: aclara que falta el consumo y explica cómo dimensionar, con su advertencia.">
+          <figcaption>El asistente responde con los números del mapa y siempre agrega advertencias</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- ===== Para quién ===== -->
+    <section class="section" id="para-quien" aria-labelledby="quien-title">
+      <div class="im-container">
+        <p class="kicker">Para quién</p>
+        <h2 id="quien-title">Pensado para quienes deciden dónde mirar primero.</h2>
+        <div class="grid grid--4">
+          <article class="audience">
+            <svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-building-2"/></svg>
+            <h3>Municipios e instituciones</h3>
+            <p>Para priorizar zonas antes de encargar estudios.</p>
+          </article>
+          <article class="audience">
+            <svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-users"/></svg>
+            <h3>Comunidades y cooperativas</h3>
+            <p>Para tener una primera mirada clara antes de pedir asesoramiento.</p>
+          </article>
+          <article class="audience">
+            <svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-wrench"/></svg>
+            <h3>Instaladores y desarrolladores</h3>
+            <p>Para filtrar zonas antes de visitar un sitio.</p>
+          </article>
+          <article class="audience">
+            <svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-sprout"/></svg>
+            <h3>Productores e inversores</h3>
+            <p>Para comparar zonas con supuestos visibles y editables.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Impacto potencial ===== -->
+    <section class="section section--sand" id="impacto" aria-labelledby="impacto-title">
+      <div class="im-container narrow">
+        <p class="kicker">Impacto potencial</p>
+        <h2 id="impacto-title">Información pública al servicio de decisiones locales.</h2>
+        <p class="lead">IntiMap puede ayudar a que municipios y comunidades lleguen mejor preparados a la conversación con especialistas: con preguntas más precisas, zonas candidatas y supuestos explícitos.</p>
+        <div class="im-note im-note--info">
+          <svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-info"/></svg>
+          <p>Es una herramienta de orientación. <strong>Su impacto todavía no fue medido.</strong></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Qué es y qué no es ===== -->
+    <section class="section" id="alcance" aria-labelledby="alcance-title">
+      <div class="im-container">
+        <p class="kicker">Alcance</p>
+        <h2 id="alcance-title">Qué es y qué no es IntiMap.</h2>
+        <div class="compare">
+          <div class="compare__col compare__col--yes">
+            <h3><svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-check"/></svg>IntiMap es</h3>
+            <ul>
+              <li>Una evaluación preliminar para comparar zonas.</li>
+              <li>Indicadores relativos dentro de Jujuy, de 0 a 100.</li>
+              <li>Estimaciones con datos climatológicos de unos 28 km.</li>
+              <li>Un escenario económico editable con recuperación simple.</li>
+              <li>Un índice comparativo del recurso eólico.</li>
+            </ul>
+          </div>
+          <div class="compare__col compare__col--no">
+            <h3><svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-x"/></svg>IntiMap no es</h3>
+            <ul>
+              <li>Un estudio de factibilidad o de ingeniería.</li>
+              <li>Una certificación de viabilidad o de aptitud del terreno.</li>
+              <li>Una medición de tu parcela.</li>
+              <li>Una cotización, una tarifa oficial ni una rentabilidad garantizada.</li>
+              <li>Un cálculo de la energía que produciría un aerogenerador.</li>
+            </ul>
+          </div>
+        </div>
+        <div class="im-note im-note--warn">
+          <svg class="im-icon" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-triangle-alert"/></svg>
+          <p>Toda decisión de inversión requiere mediciones y un estudio de sitio realizado por profesionales.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Metodología y fuentes ===== -->
+    <section class="section section--sand" id="metodologia" aria-labelledby="meto-title">
+      <div class="im-container">
+        <p class="kicker">Metodología y fuentes</p>
+        <h2 id="meto-title">Datos públicos, trazables y con su origen a la vista.</h2>
+        <div class="grid grid--3">
+          <article class="im-card source">
+            <span class="im-pill im-pill--ok">Clima</span>
+            <h3>NASA POWER</h3>
+            <p>Irradiación global, temperatura media y viento a 50 m. Climatología de enero de 2001 a diciembre de 2025.</p>
+          </article>
+          <article class="im-card source">
+            <span class="im-pill im-pill--info">Altitud</span>
+            <h3>Open-Meteo · Copernicus DEM</h3>
+            <p>Altitud de cada zona con un modelo de elevación de 90 m. Uso no comercial, CC BY 4.0.</p>
+          </article>
+          <article class="im-card source">
+            <span class="im-pill im-pill--warn">Geografía</span>
+            <h3>IGN Argentina</h3>
+            <p>Contorno oficial de la provincia de Jujuy.</p>
+          </article>
+        </div>
+        <p class="meto-links">
+          <a href="https://github.com/Esteban015/intimap-jujuy/blob/main/docs/DATA_METHODOLOGY.md" rel="noopener">Leer la metodología completa
+            <svg class="im-icon im-icon--sm" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-external-link"/></svg></a>
+          <a href="https://github.com/Esteban015/intimap-jujuy" rel="noopener">Ver el código en GitHub
+            <svg class="im-icon im-icon--sm" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-external-link"/></svg></a>
+        </p>
+      </div>
+    </section>
+
+    <!-- ===== CTA final ===== -->
+    <section class="cta" aria-labelledby="cta-title">
+      <div class="im-container cta__inner">
+        <h2 id="cta-title">Empezá por el mapa.</h2>
+        <p>Explorá las 104 zonas de Jujuy y descubrí cuáles conviene estudiar primero.</p>
+        <a class="im-btn im-btn--sun im-btn--lg" href="/mapa/">
+          Explorar mapa energético
+          <svg class="im-icon im-icon--sm" aria-hidden="true"><use href="/assets/icons/sprite.svg#i-arrow-right"/></svg>
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- ===== Footer ===== -->
+  <footer class="footer">
+    <div class="im-container footer__grid">
+      <div>
+        <a class="im-logo im-logo--inverse" href="/" aria-label="IntiMap Jujuy, inicio">
+          <img src="/assets/logo-mark.svg" alt="" width="36" height="36">
+          <span><span class="im-logo__word">Inti<b>Map</b></span><span class="im-logo__place">JUJUY</span></span>
+        </a>
+        <p class="footer__tag">El primer filtro para la energía renovable en Jujuy.</p>
+        <p class="footer__small">Proyecto del hackatón Tren Solar · Jujuy 2026.</p>
+      </div>
+      <nav aria-label="Pie de página">
+        <h2 class="footer__h">Explorar</h2>
+        <ul>
+          <li><a href="/mapa/">Mapa energético</a></li>
+          <li><a href="#metodologia">Metodología y fuentes</a></li>
+          <li><a href="https://github.com/Esteban015/intimap-jujuy" rel="noopener">GitHub</a></li>
+        </ul>
+      </nav>
+      <div>
+        <h2 class="footer__h">Atribuciones</h2>
+        <p class="footer__small">Datos: NASA POWER · Open-Meteo (CC BY 4.0) · Copernicus DEM · IGN Argentina. Software: Leaflet (BSD-2) · íconos Lucide (ISC) · tipografía Outfit (OFL).</p>
+      </div>
+    </div>
+    <div class="im-container footer__legal">
+      <p>Estimaciones preliminares con fines orientativos. No reemplazan estudios de sitio, mediciones ni asesoramiento profesional.</p>
+    </div>
   </footer>
 
-  <script src="vendor/leaflet/leaflet.js"></script>
-  <script src="scoring.js"></script>
-  <script src="app.js"></script>
+  <script src="/assets/landing.js" defer></script>
 </body>
 </html>
