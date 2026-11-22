@@ -23,7 +23,7 @@ python -m uvicorn backend.app.main:app --port 8000
 
 `--reload` es opcional, útil para desarrollar.
 
-`backend/requirements.txt` instala FastAPI, Uvicorn y el SDK `anthropic`. El SDK solo se usa si se define `LLM_API_KEY`; sin la clave, el asistente funciona en modo determinista.
+`backend/requirements.txt` fija las versiones validadas: FastAPI, Uvicorn, Pydantic, Starlette y el SDK `anthropic`. El SDK solo se usa si se define `LLM_API_KEY`; sin la clave, el asistente funciona en modo determinista.
 
 ## 2. Variables de entorno (opcionales)
 Copiá `.env.example` como referencia. **La app no lee archivos `.env`**: definí las variables en la terminal antes de iniciar uvicorn.
@@ -64,6 +64,8 @@ python scripts/fetch_data.py --limit 3  # prueba rápida con 3 celdas
 Para forzar una descarga nueva, mové la caché correspondiente de `data/raw/` fuera del repo **antes** de correr el script. Hacé un backup: la caché es la evidencia de procedencia.
 
 Fuentes, períodos y licencias: [`../data/SOURCES.md`](../data/SOURCES.md) y [`DATA_METHODOLOGY.md`](DATA_METHODOLOGY.md).
+
+Para desplegar en Render, ver [`DEPLOY_RENDER.md`](DEPLOY_RENDER.md).
 
 ## 4. Problemas frecuentes
 | Síntoma | Solución |

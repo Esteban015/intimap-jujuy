@@ -191,6 +191,7 @@ Resumen; el detalle está en [`docs/ROADMAP.md`](docs/ROADMAP.md).
 | [`docs/DEMO_SCRIPT.md`](docs/DEMO_SCRIPT.md) | Guion de la presentación de 2 a 3 minutos |
 | [`docs/ROADMAP.md`](docs/ROADMAP.md) | Lo implementado y lo propuesto |
 | [`docs/SETUP.md`](docs/SETUP.md) | Instalación y regeneración de datos |
+| [`docs/DEPLOY_RENDER.md`](docs/DEPLOY_RENDER.md) | Despliegue en Render (todavía sin URL pública) |
 | [`docs/CONTRACTS.md`](docs/CONTRACTS.md) | Contratos de datos y API |
 | [`docs/DECISIONS.md`](docs/DECISIONS.md) | Registro de decisiones técnicas |
 | [`docs/PROJECT_SPEC.md`](docs/PROJECT_SPEC.md) | Especificación original del hackatón |
