@@ -1,0 +1,11 @@
+{
+  "_label": "ESCENARIO HIPOTÉTICO EDITABLE — no son cotizaciones reales ni tarifas oficiales",
+  "_source": "Valores de ejemplo de docs/PROJECT_SPEC.md §8 (costo 900 USD/kWp, tarifa 0,10 USD/kWh). Potencia y autoconsumo: ejemplo de demo.",
+  "currency": "USD",
+  "system_kwp": {"value": 5, "unit": "kWp", "quality": "hipotetico"},
+  "cost_per_kwp_usd": {"value": 900, "unit": "USD/kWp", "quality": "hipotetico"},
+  "energy_value_usd_kwh": {"value": 0.10, "unit": "USD/kWh", "quality": "hipotetico"},
+  "self_consumption_pct": {"value": 80, "unit": "%", "quality": "hipotetico"},
+  "om_usd_year": {"value": null, "unit": "USD/año", "quality": null, "note": "Mantenimiento: completar si se conoce; vacío = no declarado"},
+  "export_value_usd_kwh": {"value": null, "unit": "USD/kWh", "quality": null, "note": "Excedentes: sin valor salvo tarifa explícita del usuario"}
+}
