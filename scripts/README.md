@@ -1,8 +1,15 @@
-# scripts/ — pipeline de datos offline (dueño: P4, Fase 1)
+# scripts/ — pipeline de datos offline
 
-Se ejecutan ANTES de la demo; la app nunca llama a APIs externas en tiempo de ejecución.
+Estos scripts se ejecutan **antes** de la demo; la app nunca llama a APIs climáticas mientras corre. Dependencia: `pip install -r scripts/requirements.txt` (Shapely).
 
-Pendiente (Fase 1):
-- `build_grid.py`: grilla 0.25° sobre el bbox de Jujuy (≈ lat −21.75 a −24.6, lon −67.25 a −64.15), recortada con el límite provincial (fuente a citar).
-- `fetch_nasa_power.py`: por celda, climatología `ALLSKY_SFC_SW_DWN` (kWh/m²/día) y `WS50M` (m/s); caché en `data/raw/`; respetar límites de uso.
-- Salida: `data/processed/cells.geojson` según contrato C1 (`docs/CONTRACTS.md`), con `quality` por campo.
+| Script | Qué hace | Salida |
+|---|---|---|
+| `build_grid.py [--offline]` | Descarga el contorno de Jujuy del IGN (respaldo: geoBoundaries, marcado como NO oficial), genera la grilla de 0,25° y la recorta. | `data/processed/jujuy.geojson`, `data/processed/grid.geojson` y la caché `data/raw/boundary_*.json` |
+| `fetch_data.py [--offline] [--limit N]` | Por celda consulta NASA POWER (climatología `ALLSKY_SFC_SW_DWN`, `T2M`, `WS50M`) y, por lotes, Open-Meteo (altitud). Calcula los indicadores con `backend/app/indicators.py` y los normaliza. | `data/processed/cells.geojson` y la caché en `data/raw/nasa_power/` y `data/raw/open_meteo_elevation.json` |
+
+Reglas del pipeline:
+- Timeout de 60 s, 2 reintentos y pausa de 1 s entre consultas.
+- Un fallo deja el campo en `null` con calidad `faltante`; nunca se rellena con datos sintéticos.
+- Si no hay contorno disponible, el script falla: no se fabrica un límite.
+
+Uso y regeneración: [`../docs/SETUP.md`](../docs/SETUP.md) §3. Metodología: [`../docs/DATA_METHODOLOGY.md`](../docs/DATA_METHODOLOGY.md).

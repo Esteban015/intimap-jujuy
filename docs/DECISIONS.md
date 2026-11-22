@@ -63,3 +63,9 @@
     - Solo reescribe el borrador. Se descarta si introduce números que no están en el borrador, pasa de 150 palabras, pierde secciones, falla, tarda o termina con un `stop_reason` distinto de `end_turn`.
     - La clave nunca llega al frontend.
     - **No se probó contra la API real** (no hay clave). Solo se probaron los caminos de descarte (sin clave y sin conexión).
+
+# Decisiones — Fase 4 (documentación)
+
+38. **`data/assumptions.json` se conserva sin modificar como archivo histórico.** Ningún componente lo lee (verificado con grep en `backend/`, `frontend/` y `scripts/`) y no hay pruebas que dependan de él. Sus valores (PR 0,75, ARS, costo y tarifa en `null`) están desactualizados y contradicen `economic_scenario.json`, que es la fuente vigente. Pertenece a P3 según `TEAM.md`; retirarlo queda a su criterio. Análisis completo en `DATA_METHODOLOGY.md` §8.
+39. **README del producto.** El README anterior, que describía el kit Colmena, se preservó como `docs/COLMENA_KIT.md`, con un encabezado que aclara que es histórico.
+40. **Pruebas:** el repositorio no incluye tests automatizados; las validaciones de las Fases 0 a 4 se hicieron con scripts de smoke externos. Incorporarlos quedó en `ROADMAP.md` §2. En la Fase 4 no se cambió código.
