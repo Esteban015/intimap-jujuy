@@ -1,0 +1,4 @@
+fastapi>=0.110,<1
+uvicorn>=0.29,<1
+# Opcional: solo para redactar respuestas del asistente con LLM (LLM_API_KEY). Sin él, modo determinista.
+anthropic>=1.0

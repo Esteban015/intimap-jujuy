@@ -1,0 +1,8 @@
+{
+  "_owner": "P3",
+  "_note": "Valores por defecto de la simulación. value=null => el usuario debe ingresarlo. Completar SOLO con fuente citada.",
+  "performance_ratio": {"value": 0.75, "unit": "adimensional", "source": "Supuesto típico de diseño FV; validar", "quality": "aproximado"},
+  "system_kwp": {"value": 5, "unit": "kWp", "source": "Ejemplo de demo (autoconsumo pequeño)", "quality": "sintetico"},
+  "cost_per_kwp": {"value": null, "unit": "ARS/kWp", "source": "PENDIENTE: cotización o fuente pública", "quality": null},
+  "tariff_per_kwh": {"value": null, "unit": "ARS/kWh", "source": "PENDIENTE: cuadro tarifario vigente de la distribuidora", "quality": null}
+}

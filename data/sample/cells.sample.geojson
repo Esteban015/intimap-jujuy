@@ -1,0 +1,288 @@
+{
+ "type": "FeatureCollection",
+ "metadata": {
+  "dataset": "sample",
+  "generated_at": "2026-11-22T00:00:00Z",
+  "grid_resolution_deg": 0.25,
+  "note": "DATOS SINTÉTICOS para desarrollo. No son mediciones. Reemplazar por data/processed/cells.geojson (Fase 1).",
+  "sources": []
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -65.75,
+       -22.25
+      ],
+      [
+       -65.5,
+       -22.25
+      ],
+      [
+       -65.5,
+       -22.0
+      ],
+      [
+       -65.75,
+       -22.0
+      ],
+      [
+       -65.75,
+       -22.25
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "c_-22.125_-65.625",
+    "centroid": [
+     -22.125,
+     -65.625
+    ],
+    "name": "Puna norte (sintético)",
+    "solar_ghi_kwh_m2_day": 7.0,
+    "wind_speed_50m_ms": 6.5,
+    "elevation_m": null,
+    "quality": {
+     "solar_ghi_kwh_m2_day": "sintetico",
+     "wind_speed_50m_ms": "sintetico",
+     "elevation_m": "sintetico"
+    }
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -66.5,
+       -23.25
+      ],
+      [
+       -66.25,
+       -23.25
+      ],
+      [
+       -66.25,
+       -23.0
+      ],
+      [
+       -66.5,
+       -23.0
+      ],
+      [
+       -66.5,
+       -23.25
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "c_-23.125_-66.375",
+    "centroid": [
+     -23.125,
+     -66.375
+    ],
+    "name": "Puna oeste (sintético)",
+    "solar_ghi_kwh_m2_day": 7.2,
+    "wind_speed_50m_ms": 7.1,
+    "elevation_m": null,
+    "quality": {
+     "solar_ghi_kwh_m2_day": "sintetico",
+     "wind_speed_50m_ms": "sintetico",
+     "elevation_m": "sintetico"
+    }
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -65.5,
+       -23.75
+      ],
+      [
+       -65.25,
+       -23.75
+      ],
+      [
+       -65.25,
+       -23.5
+      ],
+      [
+       -65.5,
+       -23.5
+      ],
+      [
+       -65.5,
+       -23.75
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "c_-23.625_-65.375",
+    "centroid": [
+     -23.625,
+     -65.375
+    ],
+    "name": "Quebrada (sintético)",
+    "solar_ghi_kwh_m2_day": 6.4,
+    "wind_speed_50m_ms": 5.0,
+    "elevation_m": null,
+    "quality": {
+     "solar_ghi_kwh_m2_day": "sintetico",
+     "wind_speed_50m_ms": "sintetico",
+     "elevation_m": "sintetico"
+    }
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -65.5,
+       -24.25
+      ],
+      [
+       -65.25,
+       -24.25
+      ],
+      [
+       -65.25,
+       -24.0
+      ],
+      [
+       -65.5,
+       -24.0
+      ],
+      [
+       -65.5,
+       -24.25
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "c_-24.125_-65.375",
+    "centroid": [
+     -24.125,
+     -65.375
+    ],
+    "name": "Valle (sintético)",
+    "solar_ghi_kwh_m2_day": 5.3,
+    "wind_speed_50m_ms": 3.6,
+    "elevation_m": null,
+    "quality": {
+     "solar_ghi_kwh_m2_day": "sintetico",
+     "wind_speed_50m_ms": "sintetico",
+     "elevation_m": "sintetico"
+    }
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -64.75,
+       -24.0
+      ],
+      [
+       -64.5,
+       -24.0
+      ],
+      [
+       -64.5,
+       -23.75
+      ],
+      [
+       -64.75,
+       -23.75
+      ],
+      [
+       -64.75,
+       -24.0
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "c_-23.875_-64.625",
+    "centroid": [
+     -23.875,
+     -64.625
+    ],
+    "name": "Yungas (sintético)",
+    "solar_ghi_kwh_m2_day": 4.6,
+    "wind_speed_50m_ms": 3.1,
+    "elevation_m": null,
+    "quality": {
+     "solar_ghi_kwh_m2_day": "sintetico",
+     "wind_speed_50m_ms": "sintetico",
+     "elevation_m": "sintetico"
+    }
+   }
+  },
+  {
+   "type": "Feature",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       -66.0,
+       -23.0
+      ],
+      [
+       -65.75,
+       -23.0
+      ],
+      [
+       -65.75,
+       -22.75
+      ],
+      [
+       -66.0,
+       -22.75
+      ],
+      [
+       -66.0,
+       -23.0
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": "c_-22.875_-65.875",
+    "centroid": [
+     -22.875,
+     -65.875
+    ],
+    "name": "Puna centro (sintético)",
+    "solar_ghi_kwh_m2_day": 6.9,
+    "wind_speed_50m_ms": 6.0,
+    "elevation_m": null,
+    "quality": {
+     "solar_ghi_kwh_m2_day": "sintetico",
+     "wind_speed_50m_ms": "sintetico",
+     "elevation_m": "sintetico"
+    }
+   }
+  }
+ ]
+}
