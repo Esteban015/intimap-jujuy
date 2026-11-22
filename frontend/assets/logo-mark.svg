@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 48" role="img" aria-labelledby="t">
+  <title id="t">IntiMap</title>
+  <!-- Isotipo IntiMap: celda de la grilla + sol geométrico (sin rostro) + línea de serranía. Diseño propio. -->
+  <defs><clipPath id="cell"><rect x="2" y="2" width="44" height="44" rx="10"/></clipPath></defs>
+  <rect x="2" y="2" width="44" height="44" rx="10" fill="#112B29"/>
+  <g clip-path="url(#cell)">
+    <path d="M16 2V46M32 2V46M2 16H46M2 32H46" stroke="#F5F1E8" stroke-opacity=".12" stroke-width="1"/>
+    <g stroke="#D9A441" stroke-width="2.4" stroke-linecap="round">
+      <path d="M24 11.5v3.5"/><path d="M12.6 16.2l2.5 2.5"/><path d="M35.4 16.2l-2.5 2.5"/>
+    </g>
+    <path d="M13 31a11 11 0 0 1 22 0z" fill="#D9A441"/>
+    <path d="M2 37 13.5 27.5l6.5 5.5 9-9.5L46 35.5V46H2z" fill="#277B68"/>
+    <path d="M2 41.5 15 34l8 4.5 9-5.5 14 6V46H2z" fill="#1F6553"/>
+  </g>
+</svg>

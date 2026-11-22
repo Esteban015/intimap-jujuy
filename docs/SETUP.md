@@ -17,7 +17,8 @@ pip install -r backend/requirements.txt
 python -m uvicorn backend.app.main:app --port 8000
 ```
 
-- App: http://localhost:8000
+- Landing: http://localhost:8000
+- Herramienta (mapa): http://localhost:8000/mapa/
 - API interactiva (Swagger): http://localhost:8000/docs
 - Estado: http://localhost:8000/api/health. Tiene que mostrar `"dataset":"processed"` y `"cells":104`.
 
