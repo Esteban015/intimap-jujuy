@@ -1,4 +1,7 @@
-fastapi>=0.110,<1
-uvicorn>=0.29,<1
-# Opcional: solo para redactar respuestas del asistente con LLM (LLM_API_KEY). Sin él, modo determinista.
-anthropic>=1.0
+# Versiones fijadas: las mismas con las que se validó el MVP (Python 3.13).
+fastapi==0.165.0
+uvicorn==0.54.0
+pydantic==2.14.4
+starlette==1.10.0
+# Opcional en runtime: solo se usa si se define LLM_API_KEY. Sin ella, el asistente es determinista.
+anthropic==2.12.0

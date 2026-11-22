@@ -1,0 +1,20 @@
+# Render Blueprint — IntiMap Jujuy (un solo web service: API + frontend estático en el mismo dominio)
+# Docs: https://render.com/docs/blueprint-spec
+services:
+  - type: web
+    name: intimap-jujuy
+    runtime: python
+    plan: free                      # explícito: si se omite, Render usa un plan pago
+    region: oregon
+    branch: main
+    autoDeployTrigger: commit
+    buildCommand: pip install -r backend/requirements.txt
+    # Render provee PORT (por defecto 10000). Bind en 0.0.0.0 para recibir tráfico público.
+    startCommand: uvicorn backend.app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      # Falla de forma explícita si falta el dataset real, en lugar de servir la muestra sintética.
+      - key: INTIMAP_DATASET
+        value: processed
+      # LLM_API_KEY se omite a propósito: el asistente funciona en modo determinista.
+      # Para activarlo más adelante, cargarla como secreto en el dashboard (nunca en este archivo).
